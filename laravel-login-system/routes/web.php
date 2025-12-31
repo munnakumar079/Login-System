@@ -17,7 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/registration', function () {
+Route::post('/registration', function () {
     return view('registration');
 })->name('register');
 

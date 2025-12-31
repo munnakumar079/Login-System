@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // REGISTER API
+    // ✅ REGISTER
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6'
         ]);
@@ -25,17 +24,23 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // 🔐 JWT Token create
+        $token = auth('api')->login($user);
+
         return response()->json([
             'status' => true,
             'message' => 'User registered successfully',
-            'data' => $user
-        ]);
+            'token' => $token,
+            'user' => $user
+        ], 201);
     }
 
-    // LOGIN API
+    // ✅ LOGIN
     public function login(Request $request)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        $credentials = $request->only('email', 'password');
+
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Invalid login details'
@@ -45,7 +50,29 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Login successful',
-            'user' => Auth::user()
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60
+        ]);
+    }
+
+    // ✅ PROFILE (Protected)
+    public function profile()
+    {
+        return response()->json([
+            'status' => true,
+            'user' => auth('api')->user()
+        ]);
+    }
+
+    // ✅ LOGOUT
+    public function logout()
+    {
+        auth('api')->logout();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Logged out successfully'
         ]);
     }
 }
