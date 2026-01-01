@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // ✅ REGISTER
+    //  REGISTER
     public function register(Request $request)
     {
         $request->validate([
@@ -56,14 +56,12 @@ class AuthController extends Controller
         ]);
     }
 
-    // ✅ PROFILE (Protected)
-    public function profile()
+    // PROFILE (Protected)
+     public function profile()
     {
-        return response()->json([
-            'status' => true,
-            'user' => auth('api')->user()
-        ]);
+        return response()->json(auth('api')->user());
     }
+
 
     // ✅ LOGOUT
     public function logout()

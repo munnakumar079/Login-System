@@ -204,15 +204,15 @@
         <h2>Login</h2>
         <p class="subtitle">Access your account</p>
 
-        <form>
+        <form id="loginForm">
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" placeholder="example@gmail.com">
+                <input type="email" id="email" placeholder="example@gmail.com">
             </div>
 
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" placeholder="********">
+                <input type="password"  id="password" placeholder="********">
             </div>
 
             <div class="form-extra">
@@ -222,9 +222,8 @@
                 <a href="{{ route('forgot-password') }}">Forgot password?</a>
             </div>
 
-            <button class="btn-login">
-                Login
-            </button>
+            <button type="submit" class="btn-login">Login</button>
+
         </form>
 
         <div class="auth-footer">
@@ -236,4 +235,49 @@
 </div>
 
 </body>
+
+
+<div id="error" style="color:red;margin-bottom:10px;"></div>
+
+<script>
+if (localStorage.getItem('token')) {
+    window.location.href = "/profile";
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    fetch("http://127.0.0.1:8000/api/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+
+        if (data.access_token) {
+            localStorage.setItem('token', data.access_token);
+            window.location.href = "/profile";
+        } else {
+            document.getElementById('error').innerText = data.message;
+        }
+    })
+    .catch(() => {
+        document.getElementById('error').innerText = "Server error";
+    });
+});
+</script>
+
+
+
+
+
+
 </html>
