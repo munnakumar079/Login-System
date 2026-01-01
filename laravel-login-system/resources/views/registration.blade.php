@@ -187,7 +187,7 @@
         <h2>Create Account</h2>
         <p class="subtitle">Register to get started</p>
 
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" id="registerForm">
             @csrf
 
             <div class="form-group">
@@ -227,4 +227,38 @@
 </div>
 
 </body>
+
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const formData = {
+        name: document.querySelector('[name="name"]').value,
+        email: document.querySelector('[name="email"]').value,
+        password: document.querySelector('[name="password"]').value,
+        password_confirmation: document.querySelector('[name="password_confirmation"]').value,
+    };
+
+    const response = await fetch("http://127.0.0.1:8000/api/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify(formData)
+    });
+
+    const data = await response.json();
+
+    if (data.status) {
+        alert("Registration successful");
+        window.location.href = "/login";
+    } else {
+        alert(data.message || "Registration failed");
+    }
+});
+</script>
+
+
 </html>
